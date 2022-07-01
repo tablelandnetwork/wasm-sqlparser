@@ -10,6 +10,7 @@ served files.
 ```
 brew tap tinygo-org/tools
 brew install tinygo
+go get -u github.com/gonowa/wasm-opt
 
 cargo install https
 ```
@@ -25,7 +26,8 @@ wget https://raw.githubusercontent.com/tinygo-org/tinygo/v0.23.0/targets/wasm_ex
 ## Build with tinygo
 
 ```
-tinygo build -gc=leaking -no-debug -o main.wasm -target wasm ./main.go
+tinygo build -wasm-abi=generic -gc=leaking -no-debug -o main.wasm -target wasm ./main.go
+wasm-opt -O main.wasm -o main.wasm
 ```
 
 This will produce `main.wasm`, and should be no more than 425K in size.
