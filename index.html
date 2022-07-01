@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my.css" />
+
+    <script src="wasm_exec.js"></script>
+    <!--
+      The `wasm_exec.js` file is provided by the GoLang project. 
+      It's a set of JavaScript helper functions which are called from WebAssembly.
+      Ensure you are using the same version of `wasm_exec.js` as the version of Go you are using to compile.
+
+      Use this command to get it:
+      ```
+      cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" .
+      ```
+      
+      **Remark**: `WebAssembly.instantiateStreaming` is the JavaScript API that allows to load the wasm file.
+
+      https://gitlab.com/k33g_org/wasm.builders/01-wasm-golang-browser/-/tree/main/03-call-a-go-function
+      
+    -->
+  </head>
+  <body>
+    <h1>WASM Experiments</h1>
+    <script>
+      // This is a polyfill for FireFox and Safari
+      if (!WebAssembly.instantiateStreaming) {
+        WebAssembly.instantiateStreaming = async (resp, importObject) => {
+          const source = await (await resp).arrayBuffer();
+          return await WebAssembly.instantiate(source, importObject);
+        };
+      }
+
+      // Promise to load the wasm file
+      function loadWasm(path) {
+        const go = new Go();
+        // Bit of a hack for this: https://github.com/tinygo-org/tinygo/issues/1140
+        go.importObject.env["syscall/js.finalizeRef"] = () => {};
+
+        return new Promise((resolve, reject) => {
+          return WebAssembly.instantiateStreaming(fetch(path), go.importObject)
+            .then((result) => {
+              go.run(result.instance);
+              return resolve(result.instance);
+            })
+            .catch((error) => {
+              return reject(error);
+            });
+        });
+      }
+
+      // Load the wasm file
+      loadWasm("/main.wasm")
+        .then((wasm) => {
+          Parse("select * from blah where id = 1;")
+            .then((parsed) => {
+              document.querySelector("h1").innerHTML = JSON.stringify(parsed);
+            })
+            .catch(alert);
+        })
+        .catch((error) => {
+          console.log("ouch", error);
+        });
+    </script>
+  </body>
+</html>
