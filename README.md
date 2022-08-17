@@ -1,21 +1,81 @@
-# `wasm-sqlparser`
+# `@tableland/sqlparser`
 
-> WIP WASM build of Tableland's [sqlparser](https://github.com/tablelandnetwork/sqlparser)
+[![Review](https://github.com/tablelandnetwork/wasm-sqlparser/actions/workflows/review.yml/badge.svg)](https://github.com/tablelandnetwork/wasm-sqlparser/actions/workflows/review.yml)
+[![Test](https://github.com/tablelandnetwork/wasm-sqlparser/actions/workflows/test.yml/badge.svg)](https://github.com/tablelandnetwork/wasm-sqlparser/actions/workflows/test.yml)
+[![GitHub package.json version](https://img.shields.io/github/package-json/v/tablelandnetwork/wasm-sqlparser.svg)](./package.json)
+[![Release](https://img.shields.io/github/release/tablelandnetwork/wasm-sqlparser.svg)](https://github.com/tablelandnetwork/wasm-sqlparser/releases/latest)
+[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg)](https://github.com/RichardLitt/standard-readme)
 
-## Install build tools
+> Parse and normalize Tableland-compliant SQL statements client-side
 
-I use the Rust [`https` package](https://crates.io/crates/https) because it handles the correct MIME types for
-served files.
+# Table of Contents
+
+- [@tableland/sqlparser](#tablelandsqlparser)
+- [Table of Contents](#table-of-contents)
+- [Background](#background)
+- [Install](#install)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Feedback](#feedback)
+- [Contributing](#contributing)
+- [License](#license)
+
+# Background
+
+Experimental WASM build of Tableland's [sqlparser](https://github.com/tablelandnetwork/sqlparser).
+
+This is a WASM-based Javascript library that wraps Tableland's Go-based [custom SQL parser](https://github.com/tablelandnetwork/sqlparser). The parser is tuned to parse SQL statements as defined by the [Tableland SQL Specification](https://docs.tableland.xyz/sql-specification).
+
+The API for this library is minimal. The main export exposes an initialization function (see [usage]) which adds a `sqlparser` object to the global namespace (due to Go WASM build quirks), which includes a single `parse` function. `parse` takes a single string object, and returns a Promise that resolves to an array of normalized SQL statements, or rejects with a parsing error.
+
+# Install
+
+```
+npm i @tableland/sqlparser
+```
+
+# Usage
+
+```typescript
+// Load module
+import init from "@tableland/sqlparser";
+// Initialize module (adds sqlparser object to global namespace)
+await init();
+// Parse sql statement
+const [parsed] = await sqlparser.parse(
+  "select * FrOM fake_table_1 WHere something='nothing';"
+);
+console.log(parsed);
+// "select * from fake_table_1 where something = 'nothing'"
+```
+
+# Testing
+
+Currently, this (experimental) module tests the native ES modules via `mocha`. There is also an `example.html` file in the `tests` folder that can be used for manual browser testing. The tests and example file provide good examples of general usage.
+
+```
+npm test
+```
+
+# Feedback
+
+Reach out with feedback and ideas:
+
+- [twitter.com/tableland\_\_](https://twitter.com/tableland__)
+- [Create a new issue](https://github.com/tablelandnetwork/wasm-sqlparser/issues)
+
+# Contributing
+
+To get started clone this repo.
+
+## Install tinygo
 
 ```
 brew tap tinygo-org/tools
 brew install tinygo
-go get -u github.com/gonowa/wasm-opt
-
-cargo install https
 ```
 
-## Bootstrap with wasm helper functions
+## Fetch wasm helpers
 
 Use the corresponding tinygo version
 
@@ -26,16 +86,26 @@ wget https://raw.githubusercontent.com/tinygo-org/tinygo/v0.23.0/targets/wasm_ex
 ## Build with tinygo
 
 ```
-tinygo build -wasm-abi=generic -gc=leaking -no-debug -o main.wasm -target wasm ./main.go
+tinygo build -gc=leaking -no-debug -o main.wasm -target wasm ./main.go
 wasm-opt -O main.wasm -o main.wasm
 ```
 
-This will produce `main.wasm`, and should be no more than 425K in size.
-
-## Serve folder as web-app
-
-You can use whatever file server you want here, just make sure the wasm file is served as `application/wasm`.
+or use the build scripts:
 
 ```
-httplz
+npm install
+npm run build
 ```
+
+This will produce `main.wasm`, and should be no more than 403K in size.
+
+## Pull requests
+
+PRs accepted.
+
+Small note: If editing the README, please conform to the
+[standard-readme](https://github.com/RichardLitt/standard-readme) specification.
+
+# License
+
+MIT AND Apache-2.0, © 2021-2022 Tableland Network Contributors

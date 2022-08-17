@@ -1,0 +1,45 @@
+{
+  "name": "@tableland/sqlparser",
+  "version": "0.0.1",
+  "files": [
+    "main.wasm",
+    "main.js",
+    "node.js",
+    "main.d.ts",
+    "wasm_exec.js"
+  ],
+  "exports": {
+    "node": "./node.js",
+    "import": "./main.js",
+    "require": "./node.js",
+    "default": "./main.js"
+  },
+  "type": "module",
+  "main": "node.js",
+  "module": "main.js",
+  "types": "main.d.ts",
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.4",
+    "eslint-plugin-promise": "^6.0.0",
+    "mocha": "^10.0.0",
+    "prettier": "^2.7.1",
+    "wasm-opt": "^1.3.0"
+  },
+  "scripts": {
+    "test": "npx mocha tests/*.js",
+    "lint": "eslint '**/*.{js,ts}'",
+    "lint:fix": "npm run lint -- --fix",
+    "prettier": "prettier '**/*.{ts,json,sol,md}' --check",
+    "prettier:fix": "npm run prettier -- --write",
+    "format": "npm run prettier:fix && npm run lint:fix",
+    "wasm:go": "tinygo build -gc=leaking -no-debug -o main.wasm -target wasm ./main.go",
+    "wasm:opt": "npx wasm-opt -O main.wasm -o main.wasm",
+    "build": "npm run wasm:go && npm run wasm:opt",
+    "clean": "rm -rf main.wasm"
+  }
+}

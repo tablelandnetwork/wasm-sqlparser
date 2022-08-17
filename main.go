@@ -1,41 +1,39 @@
 package main
 
 import (
-	"syscall/js"
-
 	"github.com/tablelandnetwork/sqlparser"
+
+	"syscall/js"
 )
 
 func main() {
 	// Outer parse function, this is exported globally
-	js.Global().Set("parse", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		// The first arg to this function should be our SQL string
-		statementString := args[0].String()
-		// Our handler is going to take a promise's resolve and reject methods
-		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			resolve := args[0]
-			reject := args[1]
+	js.Global().Set("sqlparser", js.ValueOf(map[string]interface{}{
+		"parse": js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			statementString := args[0].String()
+			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
+				go func() {
+					ast, err := sqlparser.Parse(statementString)
+					if err != nil {
+						errorConstructor := js.Global().Get("Error")
+						error := errorConstructor.New(err.Error())
+						reject.Invoke(error)
+					} else {
+						var stmts []interface{}
+						for _, stmt := range ast.Statements {
+							stmts = append(stmts, stmt.String())
+						}
+						resolve.Invoke(js.ValueOf(stmts))
+					}
+				}()
 
-			// Wrap in a go func for async behavior
-			go func() {
-				ast, err := sqlparser.Parse(statementString)
-				if err != nil {
-					// We'll create and reject with a JS error object
-					errorConstructor := js.Global().Get("Error")
-					errorObject := errorConstructor.New(err.Error())
-					reject.Invoke(errorObject)
-				} else {
-					// We'll resolve with a valid string
-					// TODO: Maybe we could marshal the whole AST to JSON
-					resolve.Invoke(js.ValueOf(ast.String()))
-				}
-			}()
-
-			return nil
-		})
-		// Create the actual promise and construct it with our handler
-		promiseConstructor := js.Global().Get("Promise")
-		return promiseConstructor.New(handler)
+				return nil
+			})
+			promiseConstructor := js.Global().Get("Promise")
+			return promiseConstructor.New(handler)
+		}),
 	}))
 
 	<-make(chan bool)
