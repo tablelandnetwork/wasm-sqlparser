@@ -6,10 +6,12 @@ import (
 	"syscall/js"
 )
 
+const GLOBAL_NAME = "sqlparser"
+
 func main() {
 	// Outer parse function, this is exported globally
-	js.Global().Set("sqlparser", js.ValueOf(map[string]interface{}{
-		"parse": js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	js.Global().Set(GLOBAL_NAME, js.ValueOf(map[string]interface{}{
+		"normalize": js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			statementString := args[0].String()
 			handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 				resolve := args[0]

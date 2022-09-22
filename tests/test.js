@@ -1,4 +1,6 @@
-import init from "@tableland/sqlparser";
+// Disable next line un-used imports just to test out exports and types
+// eslint-disable-next-line no-unused-vars
+import _init, { initSync, __wasm, init } from "@tableland/sqlparser";
 import assert from "assert";
 import { test, before } from "mocha";
 
@@ -8,7 +10,7 @@ before(async function () {
 
 test("failing", async function () {
   try {
-    await globalThis.sqlparser.parse(
+    await globalThis.sqlparser.normalize(
       "create table blah_5_ (id int, image blah, description text)"
     );
     throw new Error("wrong error");
@@ -18,7 +20,7 @@ test("failing", async function () {
 });
 
 test("passing", async function () {
-  const [result] = await globalThis.sqlparser.parse(
+  const [result] = await globalThis.sqlparser.normalize(
     "select * FrOM fake_table_1 WHere something='nothing';"
   );
   assert.equal(
@@ -28,7 +30,7 @@ test("passing", async function () {
 });
 
 test("multi-write", async function () {
-  const result = await globalThis.sqlparser.parse(
+  const result = await globalThis.sqlparser.normalize(
     "insert into blah_5_ values (1, 'three', 'something');update blah_5_ set description='something';"
   );
   assert.deepEqual(result, [
