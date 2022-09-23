@@ -41,4 +41,12 @@ declare namespace sqlparser {
      * @return A `Promise` that resolves to an array or normalized SQL statements.
      */
   export function normalize(statement: string): Promise<string[]>;
+
+  /**
+   * Set or get the maximum allowable query size.
+   * @param size If a valid number is given, maxQuerySize is set to size.
+   * If no value is specifed, the function will return the current maxQuerySize value.
+   * @return The (possibly updated) maximum allowable query size in bytes.
+   */
+  export function maxQuerySize(size?: number): number;
 }

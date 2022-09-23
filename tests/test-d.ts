@@ -14,3 +14,13 @@ expectType<WebAssembly.Exports | undefined>(__wasm);
 expectType<Promise<Array<string>>>(
   globalThis.sqlparser.normalize("select * from table where id = 1;")
 );
+
+const { maxQuerySize, normalize } = globalThis.sqlparser;
+
+expectType<number>(maxQuerySize());
+
+expectType<number>(maxQuerySize(10));
+
+expectType<Promise<Array<string>>>(
+  normalize("select * from table where id = 1;")
+);
