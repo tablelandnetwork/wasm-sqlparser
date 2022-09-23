@@ -12,6 +12,8 @@ github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/mattn/go-sqlite3 v1.14.13 h1:1tj15ngiFfcZzii7yd82foL+ks+ouQcj8j/TPq3fk1I=
 github.com/mattn/go-sqlite3 v1.14.13/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
+github.com/mattn/go-sqlite3 v1.14.15 h1:vfoHhTN1af61xCRSWzFIWzx2YskyMTwHLrExkBOjvxI=
+github.com/mattn/go-sqlite3 v1.14.15/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7 h1:xoIK0ctDddBMnc74udxJYBqlo9Ylnsp1waqjLsnef20=
@@ -26,6 +28,10 @@ github.com/tablelandnetwork/sqlparser v0.0.0-20220628214709-1c5b7df43f45 h1:DVhz
 github.com/tablelandnetwork/sqlparser v0.0.0-20220628214709-1c5b7df43f45/go.mod h1:GneggLILTJ6yM9xfBXu4OSZ0bfc/8Cw/PkzDfawhhkg=
 github.com/tablelandnetwork/sqlparser v0.0.0-20220725134734-b79ca3e804c8 h1:SX7qBAHLjeD/UtGuUnkDU7Os8pMOfOKi4Bh4jvkDI+c=
 github.com/tablelandnetwork/sqlparser v0.0.0-20220725134734-b79ca3e804c8/go.mod h1:tiNXABmR9dWeLDts7u2l6onz2sH9isfctTnUOakplAU=
+github.com/tablelandnetwork/sqlparser v0.0.0-20220830151425-aec4df78e4c8 h1:4sqEmxrC4M27a4pDUhw7WFrrbD3GbFS/8iYiQ3M5hJw=
+github.com/tablelandnetwork/sqlparser v0.0.0-20220830151425-aec4df78e4c8/go.mod h1:hEWKQ1CaX9T+3GgbIkgkcLk4x2V4wuWWC1fB6Kzfthg=
+github.com/tablelandnetwork/sqlparser v0.0.0-20220923130758-1b39431a2fea h1:tKGomA8Eu3t1v9SDPz2Zu3Fq2ESPQKoGzVS39PzGxmU=
+github.com/tablelandnetwork/sqlparser v0.0.0-20220923130758-1b39431a2fea/go.mod h1:hEWKQ1CaX9T+3GgbIkgkcLk4x2V4wuWWC1fB6Kzfthg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

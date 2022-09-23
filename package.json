@@ -4,34 +4,37 @@
   "files": [
     "main.wasm",
     "main.js",
-    "node.js",
-    "main.d.ts",
+    "module.js",
+    "types.d.ts",
     "wasm_exec.js"
   ],
   "exports": {
-    "node": "./node.js",
-    "import": "./main.js",
-    "require": "./node.js",
-    "default": "./main.js"
+    "node": "./main.js",
+    "import": "./module.js",
+    "require": "./main.js",
+    "default": "./module.js"
   },
   "type": "module",
-  "main": "node.js",
-  "module": "main.js",
-  "types": "main.d.ts",
+  "main": "main.js",
+  "module": "module.js",
+  "types": "types.d.ts",
   "devDependencies": {
     "assert": "^2.0.0",
-    "eslint": "^8.22.0",
+    "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.4",
-    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-promise": "^6.0.1",
     "mocha": "^10.0.0",
     "prettier": "^2.7.1",
+    "tsd": "^0.24.1",
     "wasm-opt": "^1.3.0"
   },
   "scripts": {
-    "test": "npx mocha tests/*.js",
+    "test": "npm run test:types && npm run test:code",
+    "test:types": "npx tsd",
+    "test:code": "npx mocha tests/*.js",
     "lint": "eslint '**/*.{js,ts}'",
     "lint:fix": "npm run lint -- --fix",
     "prettier": "prettier '**/*.{ts,json,sol,md}' --check",
@@ -42,5 +45,15 @@
     "build": "npm run wasm:go && npm run wasm:opt",
     "clean": "rm -rf main.wasm",
     "prepublishOnly": "npm run build"
+  },
+  "tsd": {
+    "directory": "tests",
+    "compilerOptions": {
+      "paths": {
+        "@tableland/sqlparser": [
+          "."
+        ]
+      }
+    }
   }
 }
