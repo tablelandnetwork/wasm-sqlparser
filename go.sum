@@ -30,6 +30,8 @@ github.com/tablelandnetwork/sqlparser v0.0.0-20220725134734-b79ca3e804c8 h1:SX7q
 github.com/tablelandnetwork/sqlparser v0.0.0-20220725134734-b79ca3e804c8/go.mod h1:tiNXABmR9dWeLDts7u2l6onz2sH9isfctTnUOakplAU=
 github.com/tablelandnetwork/sqlparser v0.0.0-20220830151425-aec4df78e4c8 h1:4sqEmxrC4M27a4pDUhw7WFrrbD3GbFS/8iYiQ3M5hJw=
 github.com/tablelandnetwork/sqlparser v0.0.0-20220830151425-aec4df78e4c8/go.mod h1:hEWKQ1CaX9T+3GgbIkgkcLk4x2V4wuWWC1fB6Kzfthg=
+github.com/tablelandnetwork/sqlparser v0.0.0-20220923130758-1b39431a2fea h1:tKGomA8Eu3t1v9SDPz2Zu3Fq2ESPQKoGzVS39PzGxmU=
+github.com/tablelandnetwork/sqlparser v0.0.0-20220923130758-1b39431a2fea/go.mod h1:hEWKQ1CaX9T+3GgbIkgkcLk4x2V4wuWWC1fB6Kzfthg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
