@@ -1,5 +1,5 @@
 import fs from "fs";
-import { initSync, __wasm } from "./types/index.js";
+import { initSync, __wasm } from "./module.js";
 
 async function init(input) {
   if (typeof input === "undefined") {
