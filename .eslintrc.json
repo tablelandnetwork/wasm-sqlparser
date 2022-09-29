@@ -5,9 +5,9 @@
     "mocha": true,
     "node": true
   },
-  // "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint"],
   "extends": ["standard", "prettier"],
-  // "parser": "@typescript-eslint/parser",
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 12
   }

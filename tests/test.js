@@ -1,5 +1,4 @@
-// Disable next line un-used imports just to test out exports and types
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable no-unused-vars */
 import _init, { initSync, __wasm, init } from "@tableland/sqlparser";
 import assert from "assert";
 import { test, before, describe } from "mocha";
@@ -16,45 +15,114 @@ describe("sqlparser", function () {
       );
       throw new Error("wrong error");
     } catch (err) {
-      assert.equal(err.message, "syntax error at position 40 near 'blah'");
+      assert.strictEqual(
+        err.message,
+        "syntax error at position 40 near 'blah'"
+      );
     }
+  });
+
+  test("create type", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "create table blah_5_ (id int, image blob, description text);"
+    );
+    assert.strictEqual(type, "create");
+  });
+
+  test("read type", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "select * from fake_table_1 where something='nothing';"
+    );
+    assert.strictEqual(type, "read");
+  });
+
+  test("write type", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "insert into blah_5_ values (1, 'three', 'something');"
+    );
+    assert.strictEqual(type, "write");
   });
 
   test("missing args", async function () {
     try {
+      // @ts-ignore error
       await globalThis.sqlparser.normalize();
       throw new Error("wrong error");
     } catch (err) {
-      assert.equal(err.message, "missing required argument 'statement'");
+      assert.strictEqual(err.message, "missing required argument 'statement'");
     }
   });
 
   test("passing", async function () {
-    const [result] = await globalThis.sqlparser.normalize(
+    const { type, statements } = await globalThis.sqlparser.normalize(
       "select * FrOM fake_table_1 WHere something='nothing';"
     );
-    assert.equal(
-      result,
+    assert.strictEqual(type, "read");
+    assert.strictEqual(
+      statements.pop(),
       "select * from fake_table_1 where something = 'nothing'"
     );
   });
 
   test("multi-write", async function () {
-    const result = await globalThis.sqlparser.normalize(
+    const { type, statements } = await globalThis.sqlparser.normalize(
       "insert into blah_5_ values (1, 'three', 'something');update blah_5_ set description='something';"
     );
-    assert.deepEqual(result, [
+    assert.strictEqual(type, "write");
+    assert.deepStrictEqual(statements, [
       "insert into blah_5_ values (1, 'three', 'something')",
       "update blah_5_ set description = 'something'",
     ]);
   });
 
+  test("create and mutate fails", async function () {
+    try {
+      await globalThis.sqlparser.normalize(
+        "create table blah_5_ (id int, image blob, description text);insert into blah_5_ values (1, 'three', 'something');"
+      );
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(
+        err.message,
+        "syntax error at position 66 near 'insert'"
+      );
+    }
+  });
+
+  test("create and query fails", async function () {
+    try {
+      await globalThis.sqlparser.normalize(
+        "create table blah_5_ (id int, image blob, description text);select * from blah_5_;"
+      );
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(
+        err.message,
+        "syntax error at position 66 near 'select'"
+      );
+    }
+  });
+
+  test("query and write fails", async function () {
+    try {
+      await globalThis.sqlparser.normalize(
+        "select * from blah_5_;insert into blah_5_ values (1, 'three', 'something');"
+      );
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(
+        err.message,
+        "syntax error at position 28 near 'insert'"
+      );
+    }
+  });
+
   test("settings", async function () {
     // Also test destructuring
     const { maxQuerySize } = globalThis.sqlparser;
-    assert.equal(maxQuerySize(), 35000);
-    assert.equal(maxQuerySize(10), 10);
-    assert.equal(maxQuerySize(), 10);
+    assert.strictEqual(maxQuerySize(), 35000);
+    assert.strictEqual(maxQuerySize(10), 10);
+    assert.strictEqual(maxQuerySize(), 10);
   });
 
   test("max query size", async function () {
@@ -65,7 +133,10 @@ describe("sqlparser", function () {
       await normalize("select * FrOM fake_table_1 WHere something='nothing';");
       throw new Error("wrong error");
     } catch (err) {
-      assert.equal(err.message, "statement size larger than specified max");
+      assert.strictEqual(
+        err.message,
+        "statement size larger than specified max"
+      );
     }
   });
 });

@@ -31,16 +31,25 @@ declare module "@tableland/sqlparser" {
    * The WASM `Exports` object cache.
    */
   export const __wasm: WebAssembly.Exports | undefined;
+
+  export type NormalizeResult = sqlparser.NormalizeResult;
 }
 
 declare namespace sqlparser {
   /**
-     * Validate and normalize a string containing (possibly multiple) SQL statement(s).
+   * Information about a (set of) normalized SQL statement(s).
+   */
+  interface NormalizeResult {
+    type: "read" | "write" | "create";
+    statements: Array<string>;
+  }
 
-     * @param statement A string containing SQL statement(s).
-     * @return A `Promise` that resolves to an array or normalized SQL statements.
-     */
-  export function normalize(statement: string): Promise<string[]>;
+  /**
+   * Validate and normalize a string containing (possibly multiple) SQL statement(s).
+   * @param statement A string containing SQL statement(s).
+   * @return A `Promise` that resolves to an array or normalized SQL statements.
+   */
+  export function normalize(statement: string): Promise<NormalizeResult>;
 
   /**
    * Set or get the maximum allowable query size.
