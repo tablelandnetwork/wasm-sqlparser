@@ -19,6 +19,10 @@
   "module": "module.js",
   "types": "types.d.ts",
   "devDependencies": {
+    "@types/assert": "^1.5.6",
+    "@types/mocha": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
     "assert": "^2.0.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",

@@ -37,11 +37,25 @@ func main() {
 						error := errorConstructor.New(err.Error())
 						reject.Invoke(error)
 					} else {
-						var stmts []interface{}
-						for _, stmt := range ast.Statements {
-							stmts = append(stmts, stmt.String())
+						response := make(map[string]interface{})
+						statements := make([]interface{}, len(ast.Statements))
+						var typ string
+						for i, stmt := range ast.Statements {
+							if typ == "" {
+								switch stmt.(type) {
+								case sqlparser.CreateTableStatement:
+									typ = "create"
+								case sqlparser.ReadStatement:
+									typ = "read"
+								default:
+									typ = "write"
+								}
+							}
+							statements[i] = stmt.String()
 						}
-						resolve.Invoke(js.ValueOf(stmts))
+						response["statements"] = statements
+						response["type"] = typ
+						resolve.Invoke(js.ValueOf(response))
 					}
 				}()
 
