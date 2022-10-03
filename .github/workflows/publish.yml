@@ -50,7 +50,7 @@ jobs:
         uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
-          tag: ${{ steps.cont.outputs.value }}
+          tag: ${{ steps.cond.outputs.value }}
           access: public
           check-version: true
 
