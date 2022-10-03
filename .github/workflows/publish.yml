@@ -28,11 +28,11 @@ jobs:
       - name: Install 🔧
         run: npm install
 
-      - name: Latest Tag
+      - name: Latest
         id: tag
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
-      - name: Conditional Tag
+      - name: Conditional
         id: cond
         uses: haya14busa/action-cond@v1
         with:
@@ -40,7 +40,12 @@ jobs:
           if_true: "next"
           if_false: "latest"
 
-      - name: Publish to NPM 📦
+      - name: Setup 🐹
+        uses: acifani/setup-tinygo@v1
+        with:
+          tinygo-version: 0.23.0
+
+      - name: Publish 📦
         id: publish
         uses: JS-DevTools/npm-publish@v1
         with:
