@@ -42,11 +42,13 @@ import init from "@tableland/sqlparser";
 // Initialize module (adds sqlparser object to global namespace)
 await init();
 // Parse sql statement
-const [parsed] = await sqlparser.parse(
+const { statements, type } = await sqlparser.normalize(
   "select * FrOM fake_table_1 WHere something='nothing';"
 );
-console.log(parsed);
+console.log(statements[0]);
+console.log(type);
 // "select * from fake_table_1 where something = 'nothing'"
+// "read"
 ```
 
 # Testing

@@ -3,7 +3,8 @@ import { initSync, __wasm } from "./module.js";
 
 async function init(input) {
   if (typeof input === "undefined") {
-    input = fs.readFileSync("./main.wasm");
+    const filePath = new URL('./main.wasm', import.meta.url);
+    input = fs.readFileSync(filePath);
   }
 
   return initSync(input);
