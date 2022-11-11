@@ -26,7 +26,7 @@ Experimental WASM build of Tableland's [sqlparser](https://github.com/tablelandn
 
 This is a WASM-based Javascript library that wraps Tableland's Go-based [custom SQL parser](https://github.com/tablelandnetwork/sqlparser). The parser is tuned to parse SQL statements as defined by the [Tableland SQL Specification](https://docs.tableland.xyz/sql-specification).
 
-The API for this library is minimal. The main export exposes an initialization function (see [usage]) which adds a `sqlparser` object to the global namespace (due to Go WASM build quirks), which includes a single `parse` function. `parse` takes a single string object, and returns a Promise that resolves to an array of normalized SQL statements, or rejects with a parsing error.
+The API for this library is minimal. The main export exposes an initialization function (see [usage]) which adds a `sqlparser` object to the global namespace (due to Go WASM build quirks), which includes a `normalize` function and a `structureHash` function.
 
 # Install
 
@@ -49,6 +49,11 @@ console.log(statements[0]);
 console.log(type);
 // "select * from fake_table_1 where something = 'nothing'"
 // "read"
+const hash = await sqlparser.structureHash(
+  "create table healthbot_5_1 (counter int);"
+);
+console.log(hash);
+// "9dc8fc6521b54e8f4606ac0e0d82a54a2b42e31bdc31dd57667b9df7016b23bf"
 ```
 
 # Testing
@@ -99,7 +104,7 @@ npm install
 npm run build
 ```
 
-This will produce `main.wasm`, and should be no more than 403K in size.
+This will produce `main.wasm`, and should be no more than 440K in size.
 
 ## Pull requests
 
