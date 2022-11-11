@@ -36,6 +36,13 @@ describe("sqlparser", function () {
     assert.strictEqual(type, "read");
   });
 
+  test("acl type", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "grant insert, update, delete on foo_1337_100 to '0xd43c59d569', '0x4afe8e30'"
+    );
+    assert.strictEqual(type, "acl");
+  });
+
   test("write type", async function () {
     const { type } = await globalThis.sqlparser.normalize(
       "insert into blah_5_ values (1, 'three', 'something');"
@@ -113,6 +120,41 @@ describe("sqlparser", function () {
       assert.strictEqual(
         err.message,
         "syntax error at position 28 near 'insert'"
+      );
+    }
+  });
+
+  test("structureHash passes", async function () {
+    const hash = await globalThis.sqlparser.structureHash(
+      "create table healthbot_5_1 (counter int);"
+    );
+    assert.strictEqual(
+      hash,
+      "9dc8fc6521b54e8f4606ac0e0d82a54a2b42e31bdc31dd57667b9df7016b23bf"
+    );
+  });
+
+  test("fails on wrong statement type", async function () {
+    try {
+      await globalThis.sqlparser.structureHash(
+        "insert into something values (1, 2, 3);"
+      );
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(err.message, "the query isn't a CREATE");
+    }
+  });
+
+  test("wrong table name fails", async function () {
+    try {
+      await globalThis.sqlparser.structureHash(
+        "create table wrong (counter int);"
+      );
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(
+        err.message,
+        "the query references a table name with the wrong format"
       );
     }
   });

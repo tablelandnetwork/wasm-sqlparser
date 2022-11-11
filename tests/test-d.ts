@@ -20,7 +20,11 @@ expectType<Promise<NormalizeResult>>(
   globalThis.sqlparser.normalize("select * from table where id = 1;")
 );
 
-const { maxQuerySize, normalize } = globalThis.sqlparser;
+expectType<Promise<string>>(
+  globalThis.sqlparser.structureHash("create table 5_10 (id text);")
+);
+
+const { maxQuerySize, normalize, structureHash } = globalThis.sqlparser;
 
 expectType<number>(maxQuerySize());
 
@@ -29,3 +33,5 @@ expectType<number>(maxQuerySize(10));
 expectType<Promise<NormalizeResult>>(
   normalize("select * from table where id = 1;")
 );
+
+expectType<Promise<string>>(structureHash("create table 5_10 (id text);"));

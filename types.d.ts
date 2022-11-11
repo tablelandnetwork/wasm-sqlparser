@@ -52,6 +52,13 @@ declare namespace sqlparser {
   export function normalize(statement: string): Promise<NormalizeResult>;
 
   /**
+   * Validate and return the sha2 hash string of the schema from a CREATE statement.
+   * @param statement A string containing a SQL CREATE statement.
+   * @return A `Promise` that resolves to a string.
+   */
+  export function structureHash(statement: string): Promise<string>;
+
+  /**
    * Set or get the maximum allowable query size.
    * @param size If a valid number is given, maxQuerySize is set to size.
    * If no value is specifed, the function will return the current maxQuerySize value.
