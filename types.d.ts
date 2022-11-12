@@ -40,7 +40,7 @@ declare namespace sqlparser {
    * Information about a (set of) normalized SQL statement(s).
    */
   interface NormalizeResult {
-    type: "read" | "write" | "create";
+    type: "read" | "write" | "create" | "acl";
     statements: Array<string>;
   }
 
