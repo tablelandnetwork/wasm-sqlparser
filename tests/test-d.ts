@@ -34,4 +34,8 @@ expectType<Promise<NormalizeResult>>(
   normalize("select * from table where id = 1;")
 );
 
+const { type } = await normalize("select * from table where id = 1;");
+
+expectType<"read" | "write" | "create" | "acl">(type);
+
 expectType<Promise<string>>(structureHash("create table 5_10 (id text);"));
