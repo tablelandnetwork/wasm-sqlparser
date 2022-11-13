@@ -42,6 +42,7 @@ declare namespace sqlparser {
   interface NormalizeResult {
     type: "read" | "write" | "create" | "acl";
     statements: Array<string>;
+    table?: string;
   }
 
   /**
