@@ -36,9 +36,16 @@ describe("sqlparser", function () {
     assert.strictEqual(type, "read");
   });
 
-  test("acl type", async function () {
+  test("grant acl type", async function () {
     const { type } = await globalThis.sqlparser.normalize(
       "grant insert, update, delete on foo_1337_100 to '0xd43c59d569', '0x4afe8e30'"
+    );
+    assert.strictEqual(type, "acl");
+  });
+
+  test("revoke acl type", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "revoke insert, update, delete on foo_1337_100 from '0xd43c59d569', '0x4afe8e30'"
     );
     assert.strictEqual(type, "acl");
   });
@@ -80,6 +87,45 @@ describe("sqlparser", function () {
       "insert into blah_5_ values (1, 'three', 'something')",
       "update blah_5_ set description = 'something'",
     ]);
+  });
+
+  test("write returns table name", async function () {
+    const { type, table } = await globalThis.sqlparser.normalize(
+      "insert into blah_5_ values (1, 'three', 'something');"
+    );
+    assert.strictEqual(type, "write");
+    assert.strictEqual(table, "blah_5_");
+  });
+
+  test("read does not return table name", async function () {
+    const { type, table } = await globalThis.sqlparser.normalize(
+      "select * from fake_table_1 where something = 'nothing';"
+    );
+    assert.strictEqual(type, "read");
+    assert.strictEqual(table, undefined);
+  });
+
+  test("multi-write with different tables fails", async function () {
+    try {
+      await globalThis.sqlparser.normalize(
+        "insert into first_5_ values (1, 'three', 'something');update second_5_ set description='something';"
+      );
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(
+        err.message,
+        "queries are referencing two distinct tables: first_5_ second_5_"
+      );
+    }
+  });
+
+  test("empty statement throws", async function () {
+    try {
+      await globalThis.sqlparser.normalize("");
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(err.message, "the statement is empty");
+    }
   });
 
   test("create and mutate fails", async function () {
@@ -124,6 +170,20 @@ describe("sqlparser", function () {
     }
   });
 
+  test("mixing acl and write types allowed", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "grant insert on foo_1337_100 to '0xd43c59d569';insert into foo_1337_100 values (1, 'three', 'something');"
+    );
+    assert.strictEqual(type, "write");
+  });
+
+  test("write or acl ordering always returns write", async function () {
+    const { type } = await globalThis.sqlparser.normalize(
+      "insert into foo_1337_100 values (1, 'three', 'something');revoke insert on foo_1337_100 from '0xd43c59d569';"
+    );
+    assert.strictEqual(type, "write");
+  });
+
   test("structureHash passes", async function () {
     const hash = await globalThis.sqlparser.structureHash(
       "create table healthbot_5_1 (counter int);"
@@ -132,6 +192,15 @@ describe("sqlparser", function () {
       hash,
       "9dc8fc6521b54e8f4606ac0e0d82a54a2b42e31bdc31dd57667b9df7016b23bf"
     );
+  });
+
+  test("empty statement throws again", async function () {
+    try {
+      await globalThis.sqlparser.structureHash("");
+      throw new Error("wrong error");
+    } catch (err) {
+      assert.strictEqual(err.message, "the statement is empty");
+    }
   });
 
   test("fails on wrong statement type", async function () {

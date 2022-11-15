@@ -12,13 +12,13 @@
       // Initialize module
       await init();
       // Parse content in header
-      const [parsed] = await globalThis.sqlparser.parse(
+      const parsed = await globalThis.sqlparser.normalize(
         document.querySelector("#raw").innerText
       );
       // Create sub-header with parsed string
       const output = document.createElement("code");
       output.id = "parsed";
-      output.innerHTML = parsed;
+      output.innerHTML = parsed.statements.join(";");
       // Add to body
       document.body.appendChild(output);
     </script>
