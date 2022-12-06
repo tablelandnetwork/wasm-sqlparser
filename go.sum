@@ -38,6 +38,14 @@ github.com/tablelandnetwork/sqlparser v0.0.0-20220923130758-1b39431a2fea h1:tKGo
 github.com/tablelandnetwork/sqlparser v0.0.0-20220923130758-1b39431a2fea/go.mod h1:hEWKQ1CaX9T+3GgbIkgkcLk4x2V4wuWWC1fB6Kzfthg=
 github.com/tablelandnetwork/sqlparser v0.0.0-20221108200142-48eee7686443 h1:yL3ww0Bh6V0JFDsA4Wxd3tYMHa92+kDaqFsArWZ3pgo=
 github.com/tablelandnetwork/sqlparser v0.0.0-20221108200142-48eee7686443/go.mod h1:S+M/v3Q8X+236kQxMQziFcLId2Cscb1LzW06IUVhljE=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221201180243-473be0c5dbbf h1:W7sNgHDcSmUwa/DyPckw3MMELYzR55/+aXA6M3paNUY=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221201180243-473be0c5dbbf/go.mod h1:S+M/v3Q8X+236kQxMQziFcLId2Cscb1LzW06IUVhljE=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221202173423-7243894ff651 h1:iBE88lfYPJfbanmuQehy5t8V7m7Yv6Ge1OEKJWuCBTc=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221202173423-7243894ff651/go.mod h1:S+M/v3Q8X+236kQxMQziFcLId2Cscb1LzW06IUVhljE=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221205171227-326657428d8c h1:PwdtTYBqQ9O4Cothc4HIJHJ3oXi8TRiKfN/9urYjNyY=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221205171227-326657428d8c/go.mod h1:S+M/v3Q8X+236kQxMQziFcLId2Cscb1LzW06IUVhljE=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221206205623-de3c827d6e39 h1:Xi7Bt60Na70O/k4uyy1ws5FnoxFS6xZuGPdCYQ/UCPQ=
+github.com/tablelandnetwork/sqlparser v0.0.0-20221206205623-de3c827d6e39/go.mod h1:S+M/v3Q8X+236kQxMQziFcLId2Cscb1LzW06IUVhljE=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
