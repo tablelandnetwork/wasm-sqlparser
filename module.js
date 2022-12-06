@@ -1,9 +1,12 @@
+// @ts-check
+/* global Go */
 import "./wasm_exec.js";
 
-// eslint-disable-next-line no-undef
 const go = new Go();
 // Bit of a hack for this: https://github.com/tinygo-org/tinygo/issues/1140
 go.importObject.env["syscall/js.finalizeRef"] = () => {};
+
+/** @type {WebAssembly.Exports | undefined} */
 let wasm;
 
 const cachedTextDecoder = new TextDecoder("utf-8", {
@@ -13,14 +16,11 @@ const cachedTextDecoder = new TextDecoder("utf-8", {
 
 cachedTextDecoder.decode();
 
-// let cachedUint8Memory0;
-// function getUint8Memory0() {
-//   if (cachedUint8Memory0.byteLength === 0) {
-//     cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
-//   }
-//   return cachedUint8Memory0;
-// }
-
+/**
+ * @param {WebAssembly.Module} module
+ * @param {WebAssembly.Imports} imports
+ * @returns {Promise<{ instance: WebAssembly.Instance; module: WebAssembly.Module }>}
+ */
 async function load(module, imports) {
   if (typeof Response === "function" && module instanceof Response) {
     if (typeof WebAssembly.instantiateStreaming === "function") {
@@ -51,12 +51,24 @@ async function load(module, imports) {
   }
 }
 
+/**
+ * @returns {WebAssembly.Imports}
+ */
 function getImports() {
   return go.importObject;
 }
 
+/**
+ * @param {WebAssembly.Imports} imports
+ * @param {WebAssembly.Memory} [maybeMemory]
+ */
 function initMemory(imports, maybeMemory) {}
 
+/**
+ * @param {WebAssembly.Instance} instance
+ * @param {WebAssembly.Module} module
+ * @returns {WebAssembly.Exports}
+ */
 function finalizeInit(instance, module) {
   wasm = instance.exports;
   init.__wbindgen_wasm_module = module;
@@ -65,7 +77,11 @@ function finalizeInit(instance, module) {
   return wasm;
 }
 
-function initSync(bytes) {
+/**
+ * @param {BufferSource} bytes
+ * @returns {WebAssembly.Exports}
+ */
+const initSync = (bytes) => {
   const imports = getImports();
 
   initMemory(imports);
@@ -76,9 +92,22 @@ function initSync(bytes) {
   go.run(instance);
 
   return finalizeInit(instance, module);
-}
+};
 
-async function init(input) {
+/** @typedef {Promise<T> | T} PromiseOrValue<T> @template T */
+
+/**
+ * @typedef {{ __wbindgen_wasm_module?: WebAssembly.Module, (
+ * input?: PromiseOrValue<string | Response | URL | BufferSource>
+ * ): Promise<WebAssembly.Exports> }} InitFunction
+ */
+
+/**
+ * @type {InitFunction}
+ * @param {PromiseOrValue<string | Response | URL | BufferSource>} [input]
+ * @returns {Promise<WebAssembly.Exports>}
+ */
+const init = async (input) => {
   if (typeof input === "undefined") {
     input = new URL("main.wasm", import.meta.url);
   }
@@ -99,7 +128,7 @@ async function init(input) {
   go.run(instance);
 
   return finalizeInit(instance, module);
-}
+};
 
 export { wasm as __wasm, initSync, init };
 export default init;
