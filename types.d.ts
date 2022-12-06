@@ -1,6 +1,5 @@
 // Type definitions for @tableland/sqlparser
 // Project: @tableland/sqlparser
-// Definitions by: Carson Farmer <carson@textile.io>
 
 declare module "@tableland/sqlparser" {
   /**
@@ -32,38 +31,72 @@ declare module "@tableland/sqlparser" {
    */
   export const __wasm: WebAssembly.Exports | undefined;
 
-  export type NormalizeResult = sqlparser.NormalizeResult;
+  export type NormalizedStatement = sqlparser.NormalizedStatement;
+  export type ValidatedTable = sqlparser.ValidatedTable;
+  export type StatementType = sqlparser.StatementType;
 }
 
 declare namespace sqlparser {
-  /**
-   * Information about a (set of) normalized SQL statement(s).
-   */
-  interface NormalizeResult {
-    type: "read" | "write" | "create" | "acl";
-    statements: Array<string>;
-    table?: string;
+  // StatementType is the type of SQL statement.
+  export type StatementType = "read" | "write" | "create" | "acl";
+
+  // NormalizedStatement is a statement that has been normalized.
+  export interface NormalizedStatement {
+    type: StatementType;
+    statements: string[];
+  }
+
+  // ValidatedTable is a Table that has been validated.
+  export interface ValidatedTable {
+    name: string;
+    prefix: string;
+    chainId: number;
+    tableId: number;
   }
 
   /**
-   * Validate and normalize a string containing (possibly multiple) SQL statement(s).
-   * @param statement A string containing SQL statement(s).
-   * @return A `Promise` that resolves to an array or normalized SQL statements.
+   * Normalize a string containing (possibly multiple) SQL statement(s).
+   * @param sql A string containing SQL statement(s).
+   * @return A `Promise` that resolves to an array of normalized SQL statements.
    */
-  export function normalize(statement: string): Promise<NormalizeResult>;
+  export function normalize(sql: string): Promise<NormalizedStatement>;
 
   /**
-   * Validate and return the sha2 hash string of the schema from a CREATE statement.
-   * @param statement A string containing a SQL CREATE statement.
+   * Validate a string containing (possibly multiple) SQL statement(s).
+   * @param sql A string containing SQL statement(s).
    * @return A `Promise` that resolves to a string.
    */
-  export function structureHash(statement: string): Promise<string>;
+  export function validateStatement(sql: string): Promise<string>;
 
   /**
-   * Set or get the maximum allowable query size.
-   * @param size If a valid number is given, maxQuerySize is set to size.
-   * If no value is specifed, the function will return the current maxQuerySize value.
-   * @return The (possibly updated) maximum allowable query size in bytes.
+   * Validate a table name.
+   * @param tableName A string containing a table name of the form `prefix_chainId_tokenId`.
+   * @return A `Promise` that resolves to a validated table object.
    */
-  export function maxQuerySize(size?: number): number;
+  export function validateTableName(
+    tableName: string,
+    isCreate: true
+  ): Promise<Omit<ValidatedTable, "tableId">>;
+  export function validateTableName(
+    tableName: string,
+    isCreate?: boolean
+  ): Promise<ValidatedTable>;
+
+  /**
+   * Get the set of unique table names from (possibly multiple) SQL statement(s).
+   * @param sql A string containing SQL statement(s).
+   * @return A `Promise` that resolves to an array of strings.
+   */
+  export function getUniqueTableNames(sql: string): Promise<string[]>;
+
+  /**
+   * Update a set of table names across (possibly multiple) SQL statement(s).
+   * @param sql A string containing SQL statement(s).
+   * @param nameMap An object to use for re-mapping table names.
+   * @return A `Promise` that resolves to a string.
+   */
+  export function updateTableNames(
+    sql: string,
+    nameMap?: Record<string, string>
+  ): Promise<string>;
 }
