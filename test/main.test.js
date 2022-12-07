@@ -1,5 +1,6 @@
 // @ts-check
 import { rejects, strictEqual, deepStrictEqual, match } from "assert";
+import { table } from "console";
 import { test, before, describe } from "mocha";
 // eslint-disable-next-line no-unused-vars
 import _init, { initSync, __wasm, init } from "../main.js";
@@ -237,6 +238,19 @@ describe("sqlparser", function () {
           return true;
         }
       );
+    });
+
+    test("when mapping ens names to something else", async function () {
+      // Also tests escape wrappers ``, [], and ""
+      const { tables } = await globalThis.sqlparser.normalize(
+        'select `table.one.ens`.id, [table.two.ens].* from `table.one.ens`, [table.two.ens] join "table.three.ens" join (select * from t4);',
+        {
+          "table.one.ens": "t1",
+          "table.two.ens": "t2",
+          "table.three.ens": "t3",
+        } // Leave t4 "as is"
+      );
+      deepStrictEqual(tables, ["t1", "t2", "t3", "t4"]);
     });
   });
 
