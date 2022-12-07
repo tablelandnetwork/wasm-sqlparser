@@ -2,6 +2,7 @@
 /* global Go */
 import "./wasm_exec.js";
 
+// @ts-ignore
 const go = new Go();
 // Bit of a hack for this: https://github.com/tinygo-org/tinygo/issues/1140
 go.importObject.env["syscall/js.finalizeRef"] = () => {};
@@ -19,7 +20,7 @@ cachedTextDecoder.decode();
 /**
  * @param {WebAssembly.Module} module
  * @param {WebAssembly.Imports} imports
- * @returns {Promise<{ instance: WebAssembly.Instance; module: WebAssembly.Module }>}
+ * @returns {Promise<any>}
  */
 async function load(module, imports) {
   if (typeof Response === "function" && module instanceof Response) {

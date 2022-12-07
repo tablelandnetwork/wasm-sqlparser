@@ -15,7 +15,7 @@ describe("sqlparser", function () {
         globalThis.sqlparser.normalize(
           "create table blah_5_ (id int, image blah, description text)"
         ),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: syntax error at position 40 near 'blah'"
@@ -69,7 +69,7 @@ describe("sqlparser", function () {
       await rejects(
         // @ts-expect-error error
         globalThis.sqlparser.normalize(),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(err.message, "missing required argument: statement");
           return true;
         }
@@ -105,7 +105,7 @@ describe("sqlparser", function () {
       insert into blah_5_ values (1, 'three', 'something');
       update syn tax err set foo;
       `),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: syntax error at position 81 near 'tax'"
@@ -118,7 +118,7 @@ describe("sqlparser", function () {
     test("when there is a non-syntax error", async function () {
       await rejects(
         globalThis.sqlparser.normalize("select AUTOINCREMENT from t;"),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: 1 error occurred:\n\t* keyword not allowed: AUTOINCREMENT\n\n"
@@ -130,7 +130,7 @@ describe("sqlparser", function () {
 
     test("when an empty statement is passed", async function () {
       const result = globalThis.sqlparser.normalize("");
-      await rejects(result, (err) => {
+      await rejects(result, (/** @type {any} */ err) => {
         strictEqual(err.message, "error parsing statement: empty string");
         return true;
       });
@@ -141,7 +141,7 @@ describe("sqlparser", function () {
         globalThis.sqlparser.normalize(
           "create table blah_5_ (id int, image blob, description text);insert into blah_5_ values (1, 'three', 'something');"
         ),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: syntax error at position 66 near 'insert'"
@@ -156,7 +156,7 @@ describe("sqlparser", function () {
         globalThis.sqlparser.normalize(
           "create table blah_5_ (id int, image blob, description text);select * from blah_5_;"
         ),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: syntax error at position 66 near 'select'"
@@ -171,7 +171,7 @@ describe("sqlparser", function () {
         globalThis.sqlparser.normalize(
           "select * from blah_5_;insert into blah_5_ values (1, 'three', 'something');"
         ),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: syntax error at position 28 near 'insert'"
@@ -194,30 +194,13 @@ describe("sqlparser", function () {
       );
       strictEqual(type, "write");
     });
-  });
-
-  describe("validateStatement()", function () {
-    test("when there is a basic syntax error", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(
-          "create table blah_5_ (id int, image blah, description text)"
-        ),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error parsing statement: syntax error at position 40 near 'blah'"
-          );
-          return true;
-        }
-      );
-    });
 
     test("when there is a really long statement", async function () {
       await rejects(
-        globalThis.sqlparser.validateStatement(
-          "insert INTO blah_5_1 values (1, 'three', 'something');".repeat(650)
+        globalThis.sqlparser.normalize(
+          "insert INTO blah_5_1 values (1, 'three', 'something');".repeat(660)
         ),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "statement size error: larger than specified max"
@@ -227,205 +210,29 @@ describe("sqlparser", function () {
       );
     });
 
-    test("when there is a single create statement", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "CREATE table blah_5 (id int, image blob, description text);"
+    test("when re-mapping table names on the fly", async function () {
+      const { statements, tables } = await globalThis.sqlparser.normalize(
+        "select `t1`.id, t3.* from t1, t2 join t3 join (select * from t4);",
+        { t1: "table1", t2: "table2", t3: "table3" } // Leave t4 "as is"
       );
-      match(statement, /^create table blah_5.*/);
-    });
-
-    test("when there is a create statement with an invalid name", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "create TABLE blah_5_1 (id int, image blob, description text);"
-      );
-      match(statement, /^create table blah_5_.*/);
-    });
-
-    test("when there is a single read statement", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "select * FROM fake_42_1 where something='nothing';"
-      );
-      match(statement, /^select \* from fake_42_1.*/);
-    });
-
-    test("when there is a single read statement with an invalid table name", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(
-          "select * FROM fake_table_1 where something='nothing';"
-        ),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error validating name: walk subtree: validate: table name has wrong format: fake_table_1"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("when there is a single grant statement", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "grant INSERT, update, DELETE on foo_1337_100 to '0xd43c59d569', '0x4afe8e30'"
-      );
-      match(statement, /^grant delete, insert, update on foo_1337_100.*/);
-    });
-
-    test("when there is a single revoke statement", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "REVOKE insert, UPDATE, delete ON foo_1337_100 from '0xd43c59d569', '0x4afe8e30'"
-      );
-      match(statement, /^revoke delete, insert, update on foo_1337_100.*/);
-    });
-
-    test("when there is a single write statement", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "insert INTO blah_5_1 values (1, 'three', 'something');"
-      );
-      match(statement, /^insert into blah_5_1 values.*/);
-    });
-
-    test("when there is a single write statement with an invalid table name", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(
-          "insert INTO blah_5_ values (1, 'three', 'something');"
-        ),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error validating name: walk subtree: validate: table name has wrong format: blah_5_"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("where no arguments are passed to the function", async function () {
-      await rejects(
-        // @ts-expect-error error
-        globalThis.sqlparser.validateStatement(),
-        (err) => {
-          strictEqual(err.message, "missing required argument: statement");
-          return true;
-        }
-      );
-    });
-
-    test("when a single statement with mixed case is normalized", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(
-        "select * FrOM fake_6_1 WHere something='nothing';"
-      );
+      // Note the canonical "join" added below to replace the comma
       strictEqual(
-        statement,
-        "select * from fake_6_1 where something = 'nothing'"
+        statements.join(""),
+        "select table1.id, table3.* from table1 join table2 join table3 join (select * from t4)"
       );
+      deepStrictEqual(tables, ["table1", "table2", "table3", "t4"]);
     });
 
-    test("when there are multiple write statements", async function () {
-      const statement = await globalThis.sqlparser.validateStatement(`
-      insert into blah_5_1 values (1, 'three', 'something');
-      update blah_5_1 set description='something';
-      `);
-      deepStrictEqual(
-        statement,
-        [
-          "insert into blah_5_1 values (1, 'three', 'something')",
-          "update blah_5_1 set description = 'something'",
-        ].join("; ")
-      );
-    });
-
-    test("when there are multiple write statements and one has the wrong name format", async function () {
+    test("when mapping names to something invalid throws an error", async function () {
       await rejects(
-        globalThis.sqlparser.validateStatement(`
-      insert into blah_5_1 values (1, 'three', 'something');
-      update blah_5_ set description='something';
-      `),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error validating name: walk subtree: validate: table name has wrong format: blah_5_"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("when there is a syntax error in a latter statement", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(`
-      insert into blah_5_ values (1, 'three', 'something');
-      update syn tax err set foo;
-      `),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error parsing statement: syntax error at position 81 near 'tax'"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("when there is a non-syntax error", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement("select AUTOINCREMENT from t;"),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error parsing statement: 1 error occurred:\n\t* keyword not allowed: AUTOINCREMENT\n\n"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("when an empty statement is passed", async function () {
-      const result = globalThis.sqlparser.validateStatement("");
-      await rejects(result, (err) => {
-        strictEqual(err.message, "error parsing statement: empty string");
-        return true;
-      });
-    });
-
-    test("when create and mutate calls are mixed it fails", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(
-          "create table blah_5_ (id int, image blob, description text);insert into blah_5_ values (1, 'three', 'something');"
+        globalThis.sqlparser.normalize(
+          "select `t1`.id, t3.* from t1, t2 join t3 join (select * from t4);",
+          { t1: "@#$%^&", t2: "valid", t3: "3.14" } // Leave t4 "as is"
         ),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
-            "error parsing statement: syntax error at position 66 near 'insert'"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("when create and query calls are mixed it fails", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(
-          "create table blah_5_ (id int, image blob, description text);select * from blah_5_;"
-        ),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error parsing statement: syntax error at position 66 near 'select'"
-          );
-          return true;
-        }
-      );
-    });
-
-    test("when query and write calls are mixed it fails", async function () {
-      await rejects(
-        globalThis.sqlparser.validateStatement(
-          "select * from blah_5_;insert into blah_5_ values (1, 'three', 'something');"
-        ),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error parsing statement: syntax error at position 28 near 'insert'"
+            "error updating statement: table name has wrong format: @#$%^&"
           );
           return true;
         }
@@ -437,7 +244,7 @@ describe("sqlparser", function () {
     test("when there is a statement syntax error", async function () {
       await rejects(
         globalThis.sqlparser.getUniqueTableNames("create nothing;"),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(
             err.message,
             "error parsing statement: syntax error at position 14 near 'nothing'"
@@ -450,7 +257,7 @@ describe("sqlparser", function () {
       await rejects(
         // @ts-expect-error error
         globalThis.sqlparser.getUniqueTableNames(),
-        (err) => {
+        (/** @type {any} */ err) => {
           strictEqual(err.message, "missing required argument: statement");
           return true;
         }
@@ -505,7 +312,7 @@ describe("sqlparser", function () {
       for (const tableName of invalidNames) {
         await rejects(
           globalThis.sqlparser.validateTableName(tableName),
-          (err) => {
+          (/** @type {any} */ err) => {
             strictEqual(
               err.message,
               `error validating name: table name has wrong format: ${tableName}`
@@ -574,36 +381,6 @@ describe("sqlparser", function () {
         chainId: 1,
         prefix: "",
       });
-    });
-  });
-
-  describe("updateTableNames()", function () {
-    test("when re-mapping table names", async function () {
-      const statement = await globalThis.sqlparser.updateTableNames(
-        "select `t1`.id, t3.* from t1, t2 join t3 join (select * from t4);",
-        { t1: "table1", t2: "table2", t3: "table3" } // Leave t4 "as is"
-      );
-      // Note the canonical "join" added below to replace the comma
-      deepStrictEqual(
-        statement,
-        "select table1.id, table3.* from table1 join table2 join table3 join (select * from t4)"
-      );
-    });
-
-    test("mapping names to something invalid throws an error", async function () {
-      await rejects(
-        globalThis.sqlparser.updateTableNames(
-          "select `t1`.id, t3.* from t1, t2 join t3 join (select * from t4);",
-          { t1: "@#$%^&", t2: "valid", t3: "3.14" } // Leave t4 "as is"
-        ),
-        (err) => {
-          strictEqual(
-            err.message,
-            "error parsing updated statement: syntax error at position 7 near '@'"
-          );
-          return true;
-        }
-      );
     });
   });
 });

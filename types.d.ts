@@ -44,6 +44,7 @@ declare namespace sqlparser {
   export interface NormalizedStatement {
     type: StatementType;
     statements: string[];
+    tables: string[];
   }
 
   // ValidatedTable is a Table that has been validated.
@@ -55,18 +56,15 @@ declare namespace sqlparser {
   }
 
   /**
-   * Normalize a string containing (possibly multiple) SQL statement(s).
+   * Validate and normalize a string containing (possibly multiple) SQL statement(s).
    * @param sql A string containing SQL statement(s).
+   * @param nameMap An optional object to use for re-mapping table names.
    * @return A `Promise` that resolves to an array of normalized SQL statements.
    */
-  export function normalize(sql: string): Promise<NormalizedStatement>;
-
-  /**
-   * Validate a string containing (possibly multiple) SQL statement(s).
-   * @param sql A string containing SQL statement(s).
-   * @return A `Promise` that resolves to a string.
-   */
-  export function validateStatement(sql: string): Promise<string>;
+  export function normalize(
+    sql: string,
+    nameMap?: Record<string, string>
+  ): Promise<NormalizedStatement>;
 
   /**
    * Validate a table name.
@@ -88,15 +86,4 @@ declare namespace sqlparser {
    * @return A `Promise` that resolves to an array of strings.
    */
   export function getUniqueTableNames(sql: string): Promise<string[]>;
-
-  /**
-   * Update a set of table names across (possibly multiple) SQL statement(s).
-   * @param sql A string containing SQL statement(s).
-   * @param nameMap An object to use for re-mapping table names.
-   * @return A `Promise` that resolves to a string.
-   */
-  export function updateTableNames(
-    sql: string,
-    nameMap?: Record<string, string>
-  ): Promise<string>;
 }
