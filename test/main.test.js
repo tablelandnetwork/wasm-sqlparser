@@ -1,6 +1,5 @@
 // @ts-check
 import { rejects, strictEqual, deepStrictEqual, match } from "assert";
-import { table } from "console";
 import { test, before, describe } from "mocha";
 // eslint-disable-next-line no-unused-vars
 import _init, { initSync, __wasm, init } from "../main.js";
