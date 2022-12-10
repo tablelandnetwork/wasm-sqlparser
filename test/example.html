@@ -8,17 +8,17 @@
     </p>
     <script type="module">
       // Load module
-      import init from "../main.js";
+      import init from "../module.js";
       // Initialize module
       await init();
       // Parse content in header
-      const parsed = await globalThis.sqlparser.normalize(
+      const { statements } = await globalThis.sqlparser.normalize(
         document.querySelector("#raw").innerText
       );
-      // Create sub-header with parsed string
+      // Create code element with parsed string
       const output = document.createElement("code");
       output.id = "parsed";
-      output.innerHTML = parsed.statements.join(";");
+      output.innerHTML = statements.join(";");
       // Add to body
       document.body.appendChild(output);
     </script>

@@ -26,13 +26,15 @@ Experimental WASM build of Tableland's [sqlparser](https://github.com/tablelandn
 
 This is a WASM-based Javascript library that wraps Tableland's Go-based [custom SQL parser](https://github.com/tablelandnetwork/sqlparser). The parser is tuned to parse SQL statements as defined by the [Tableland SQL Specification](https://docs.tableland.xyz/sql-specification).
 
-The API for this library is minimal. The main export exposes an initialization function (see [usage]) which adds a `sqlparser` object to the global namespace (due to Go WASM build quirks), which includes a `normalize` function and a `structureHash` function.
+The API for this library is minimal. The main export exposes an initialization function (see [Usage](#usage)) which adds a `sqlparser` object to the global namespace (due to Go WASM build quirks), which includes a the `normalize`, `validateTableName`, and `getUniqueTableNames` functions.
 
 # Install
 
 ```
 npm i @tableland/sqlparser
 ```
+
+You should also be able to use the module directly in modern browsers supporting ES modules.
 
 # Usage
 
@@ -42,18 +44,28 @@ import init from "@tableland/sqlparser";
 // Initialize module (adds sqlparser object to global namespace)
 await init();
 // Parse sql statement
-const { statements, type } = await sqlparser.normalize(
+const { statements, type, tables } = await sqlparser.normalize(
   "select * FrOM fake_table_1 WHere something='nothing';"
 );
-console.log(statements[0]);
+console.log(statements);
 console.log(type);
-// "select * from fake_table_1 where something = 'nothing'"
+console.log(tables);
+// ["select * from fake_table_1 where something = 'nothing'"]
 // "read"
-const hash = await sqlparser.structureHash(
-  "create table healthbot_5_1 (counter int);"
+// ["fake_table_1"]
+const tableName = await sqlparser.validateTableName("healthbot_5_1");
+console.log(tableName);
+// {
+//   name: "healthbot_5_1",
+//   chainId: 5,
+//   tableId: 1,
+//   prefix: "healthbot",
+// }
+const tableNames = await sqlparser.getUniqueTableNames(
+  "select t1.id, t3.* from t1, t2 join t3 join (select * from t4);"
 );
-console.log(hash);
-// "9dc8fc6521b54e8f4606ac0e0d82a54a2b42e31bdc31dd57667b9df7016b23bf"
+console.log(tableNames);
+// ["t1", "t2", "t3", "t4"]
 ```
 
 # Testing
