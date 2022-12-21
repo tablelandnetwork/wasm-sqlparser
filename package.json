@@ -1,6 +1,6 @@
 {
   "name": "@tableland/sqlparser",
-  "version": "0.2.0",
+  "version": "1.0.0-pre.0",
   "files": [
     "main.wasm",
     "main.js",
