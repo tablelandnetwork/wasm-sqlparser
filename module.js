@@ -110,7 +110,7 @@ const initSync = (bytes) => {
  */
 const init = async (input) => {
   if (typeof input === "undefined") {
-    input = new URL("main.wasm", import.meta.url);
+    input = new URL("../main.wasm", import.meta.url);
   }
   const imports = getImports();
 
