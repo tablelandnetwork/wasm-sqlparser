@@ -1,6 +1,6 @@
 {
   "name": "@tableland/sqlparser",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "files": [
     "cjs/*.js",
     "cjs/*.wasm",
