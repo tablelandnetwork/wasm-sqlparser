@@ -1,5 +1,5 @@
 // @ts-check
-import fs from "fs";
+import { readFileSync } from "fs";
 import { initSync, __wasm } from "./module.js";
 
 /**
@@ -8,8 +8,7 @@ import { initSync, __wasm } from "./module.js";
  */
 const init = async (input) => {
   if (typeof input === "undefined") {
-    const filePath = new URL("./main.wasm", import.meta.url);
-    input = fs.readFileSync(filePath);
+    input = readFileSync("./main.wasm");
   }
 
   return initSync(await input);
