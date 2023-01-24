@@ -11,7 +11,7 @@ const init = async (input) => {
   if (typeof input === "undefined") {
     const wasmPath = typeof __dirname === "undefined"
       // in esm build path can be relative
-      ? "./main.wasm"
+      ? (new URL("./main.wasm", import.meta.url)).pathname
       // in cjs build path must be full
       : join(__dirname, "main.wasm");
     input = readFileSync(wasmPath);

@@ -110,9 +110,9 @@ const initSync = (bytes) => {
  */
 const init = async (input) => {
   if (typeof input === "undefined") {
-    // TODO: using `import.meta` like this does not work in cjs.
-    //       However this seems to work in general aside from a warning during build.
-    //       Maybe this is because the value of input is always undefined in cjs? -JW
+    // NOTE: using `import.meta` like this does not work in cjs.
+    //       However this works in general aside from a warning during build.
+    //       This is because the value of input is always undefined in cjs.
     input = new URL("../main.wasm", import.meta.url);
   }
   const imports = getImports();
