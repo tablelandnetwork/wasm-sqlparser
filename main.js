@@ -1,5 +1,6 @@
 // @ts-check
 import { readFileSync } from "fs";
+import { join } from "path";
 import { initSync, __wasm } from "./module.js";
 
 /**
@@ -8,7 +9,12 @@ import { initSync, __wasm } from "./module.js";
  */
 const init = async (input) => {
   if (typeof input === "undefined") {
-    input = readFileSync("./main.wasm");
+    const wasmPath = typeof __dirname === "undefined"
+      // in esm build path can be relative
+      ? "./main.wasm"
+      // in cjs build path must be full
+      : join(__dirname, "main.wasm");
+    input = readFileSync(wasmPath);
   }
 
   return initSync(await input);
