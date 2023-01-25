@@ -11,13 +11,13 @@
   ],
   "exports": {
     "node": "./cjs/main.js",
-    "import": "./esm/module.js",
+    "import": "./module.js",
     "require": "./cjs/main.js",
-    "default": "./esm/module.js"
+    "default": "./module.js"
   },
   "type": "module",
   "main": "./cjs/main.js",
-  "module": "./esm/module.js",
+  "module": "./module.js",
   "types": "types.d.ts",
   "devDependencies": {
     "@types/assert": "^1.5.6",
