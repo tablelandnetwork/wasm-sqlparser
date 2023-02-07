@@ -46,7 +46,7 @@ describe("sqlparser", function () {
         "grant INSERT, update, DELETE on foo_1337_100 to '0xd43c59d569', '0x4afe8e30'"
       );
       strictEqual(type, "acl");
-      match(statements[0], /^grant delete, insert, update on foo_1337_100.*/);
+      match(statements[0], /^grant delete,insert,update on foo_1337_100.*/);
     });
 
     test("when there is a single revoke statement", async function () {
@@ -54,7 +54,7 @@ describe("sqlparser", function () {
         "REVOKE insert, UPDATE, delete ON foo_1337_100 from '0xd43c59d569', '0x4afe8e30'"
       );
       strictEqual(type, "acl");
-      match(statements[0], /^revoke delete, insert, update on foo_1337_100.*/);
+      match(statements[0], /^revoke delete,insert,update on foo_1337_100.*/);
     });
 
     test("when there is a single write statement", async function () {
@@ -83,7 +83,7 @@ describe("sqlparser", function () {
       strictEqual(type, "read");
       strictEqual(
         statements.pop(),
-        "select * from fake_table_1 where something = 'nothing'"
+        "select * from fake_table_1 where something='nothing'"
       );
     });
 
@@ -94,8 +94,8 @@ describe("sqlparser", function () {
       `);
       strictEqual(type, "write");
       deepStrictEqual(statements, [
-        "insert into blah_5_ values (1, 'three', 'something')",
-        "update blah_5_ set description = 'something'",
+        "insert into blah_5_ values(1,'three','something')",
+        "update blah_5_ set description='something'",
       ]);
     });
 
@@ -198,7 +198,7 @@ describe("sqlparser", function () {
     test("when there is a really long statement", async function () {
       await rejects(
         globalThis.sqlparser.normalize(
-          "insert INTO blah_5_1 values (1, 'three', 'something');".repeat(660)
+          "insert INTO blah_5_1 values (1, 'three', 'something');".repeat(700)
         ),
         (/** @type {any} */ err) => {
           strictEqual(
@@ -218,7 +218,7 @@ describe("sqlparser", function () {
       // Note the canonical "join" added below to replace the comma
       strictEqual(
         statements.join(""),
-        "select table1.id, table3.* from table1 join table2 join table3 join (select * from t4)"
+        "select table1.id,table3.* from table1 join table2 join table3 join(select * from t4)"
       );
       deepStrictEqual(tables, ["table1", "table2", "table3", "t4"]);
     });
