@@ -40,17 +40,17 @@ You should also be able to use the module directly in modern browsers supporting
 
 ```typescript
 // Load module
-import init from "@tableland/sqlparser";
+import { init } from "@tableland/sqlparser";
 // Initialize module (adds sqlparser object to global namespace)
 await init();
 // Parse sql statement
 const { statements, type, tables } = await sqlparser.normalize(
-  "select * FrOM fake_table_1 WHere something='nothing';"
+  "select * FrOM fake_table_1 WHere something = 'nothing';"
 );
 console.log(statements);
 console.log(type);
 console.log(tables);
-// ["select * from fake_table_1 where something = 'nothing'"]
+// ["select * from fake_table_1 where something='nothing'"]
 // "read"
 // ["fake_table_1"]
 const tableName = await sqlparser.validateTableName("healthbot_5_1");
