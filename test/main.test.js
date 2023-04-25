@@ -227,7 +227,6 @@ describe("sqlparser", function () {
     test("when mapping names to something invalid throws an error", async function () {
       await rejects(
         globalThis.sqlparser.normalize(
-          // TODO: This test fails, but seems like a valid test.
           "select `t1`.id, t3.* from t1, t2 join t3 join (select * from t4);",
           { t1: "@#$%^&", t2: "valid", t3: "3.14" } // Leave t4 "as is"
         ),
@@ -251,8 +250,7 @@ describe("sqlparser", function () {
           "table.three.ens": "t3",
         } // Leave t4 "as is"
       );
-      // TODO: This test fails, but seems like a valid test
-      deepStrictEqual(tables, ["t1", "t2", "t3", "t4"]);
+      deepStrictEqual(tables, ["`t1`", "[t2]", "\"t3\"", "t4"]);
     });
   });
 
