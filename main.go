@@ -45,8 +45,8 @@ func UpdateTableNames(node sqlparser.Node, nameMapper func(string) (string, bool
 		if table, ok := node.(*sqlparser.Table); ok && table != nil {
 			if tableName, ok := nameMapper(table.Name.String()); ok {
 
+				// to do name format validation we have to take it out of the enclosure
 				tableName, enclosure, isEnclosed := getEnclosedName(tableName)
-
 				if !tableNameRegEx.MatchString(tableName) {
 					return true, &sqlparser.ErrTableNameWrongFormat{Name: tableName}
 				}
@@ -201,7 +201,8 @@ func normalize(this js.Value, args []js.Value) interface{} {
 			tableReferences := sqlparser.GetUniqueTableReferences(ast)
 			tables := make([]interface{}, len(tableReferences))
 			for i := range tableReferences {
-				tables[i] = tableReferences[i]
+				_name, _, _ := getEnclosedName(tableReferences[i])
+				tables[i] = _name
 			}
 			response := map[string]interface{}{
 				"type":       string(statementType),

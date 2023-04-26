@@ -249,7 +249,7 @@ describe("sqlparser", function () {
           "table.three.ens": "t3",
         } // Leave t4 "as is"
       );
-      deepStrictEqual(tables, ["`t1`", "[t2]", "\"t3\"", "t4"]);
+      deepStrictEqual(tables, ["t1", "t2", "t3", "t4"]);
     });
   });
 
