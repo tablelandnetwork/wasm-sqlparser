@@ -49,6 +49,9 @@ jobs:
       - name: Install 🔧
         run: npm install
 
+      - name: Build 🔧
+        run: npm run build
+
       - name: Conditional ✅
         id: cond
         uses: haya14busa/action-cond@v1
