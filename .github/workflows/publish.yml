@@ -22,10 +22,15 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Setup ⬢
+      - name: Setup Node ⬢
         uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      - name: Setup TinyGo
+        uses: acifani/setup-tinygo@v1
+        with:
+          tinygo-version: '0.27.0'
 
       - name: Tag 🏷️
         uses: actions/github-script@v6
@@ -48,9 +53,6 @@ jobs:
 
       - name: Install 🔧
         run: npm install
-
-      - name: Build 🔧
-        run: npm run build
 
       - name: Conditional ✅
         id: cond
