@@ -218,7 +218,7 @@ describe("sqlparser", function () {
       // Note the canonical "join" added below to replace the comma
       strictEqual(
         statements.join(""),
-        "select table1.id,table3.* from table1 join table2 join table3 join(select * from t4)"
+        "select `table1`.id,table3.* from table1 join table2 join table3 join(select * from t4)"
       );
       deepStrictEqual(tables, ["table1", "table2", "table3", "t4"]);
     });

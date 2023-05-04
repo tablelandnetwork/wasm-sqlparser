@@ -215,10 +215,11 @@ describe("sqlparser", function () {
         "select `t1`.id, t3.* from t1, t2 join t3 join (select * from t4);",
         { t1: "table1", t2: "table2", t3: "table3" } // Leave t4 "as is"
       );
+
       // Note the canonical "join" added below to replace the comma
       strictEqual(
         statements.join(""),
-        "select table1.id,table3.* from table1 join table2 join table3 join(select * from t4)"
+        "select `table1`.id,table3.* from table1 join table2 join table3 join(select * from t4)"
       );
       deepStrictEqual(tables, ["table1", "table2", "table3", "t4"]);
     });
@@ -241,7 +242,7 @@ describe("sqlparser", function () {
 
     test("when mapping ens names to something else", async function () {
       // Also tests escape wrappers ``, [], and ""
-      const { tables } = await globalThis.sqlparser.normalize(
+      const { tables, statements, type } = await globalThis.sqlparser.normalize(
         'select `table.one.ens`.id, [table.two.ens].* from `table.one.ens`, [table.two.ens] join "table.three.ens" join (select * from t4);',
         {
           "table.one.ens": "t1",
@@ -250,6 +251,10 @@ describe("sqlparser", function () {
         } // Leave t4 "as is"
       );
       deepStrictEqual(tables, ["t1", "t2", "t3", "t4"]);
+      deepStrictEqual(statements, [
+        'select `t1`.id,[t2].* from `t1` join [t2] join "t3" join(select * from t4)'
+      ]);
+      strictEqual(type, "read");
     });
   });
 

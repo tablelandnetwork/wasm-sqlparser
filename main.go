@@ -2,6 +2,7 @@ package main
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/tablelandnetwork/sqlparser"
 
@@ -22,6 +23,19 @@ const (
 	Acl    StatementType = "acl"
 )
 
+type EnclosingType struct {
+	open  string
+	close string
+}
+
+func getEnclosures() []EnclosingType {
+	return []EnclosingType{
+		{ open: "`", close: "`" },
+		{ open: "\"", close: "\"" },
+		{ open: "[", close: "]" },
+	}
+}
+
 // UpdateTableNames mutates a Node in place, mapping a set of input table names to output table names.
 func UpdateTableNames(node sqlparser.Node, nameMapper func(string) (string, bool)) (sqlparser.Node, error) {
 	if node == nil {
@@ -30,8 +44,14 @@ func UpdateTableNames(node sqlparser.Node, nameMapper func(string) (string, bool
 	if err := sqlparser.Walk(func(node sqlparser.Node) (bool, error) {
 		if table, ok := node.(*sqlparser.Table); ok && table != nil {
 			if tableName, ok := nameMapper(table.Name.String()); ok {
+
+				// to do name format validation we have to take it out of the enclosure
+				tableName, enclosure, isEnclosed := getEnclosedName(tableName)
 				if !tableNameRegEx.MatchString(tableName) {
 					return true, &sqlparser.ErrTableNameWrongFormat{Name: tableName}
+				}
+				if isEnclosed {
+					tableName = enclosure.open + tableName + enclosure.close
 				}
 				table.Name = sqlparser.Identifier(tableName)
 			}
@@ -136,7 +156,20 @@ func normalize(this js.Value, args []js.Value) interface{} {
 			}
 			if !nameMap.IsUndefined() {
 				if _, err := UpdateTableNames(ast, func(name string) (string, bool) {
-					value := nameMap.Get(name)
+					// take the name and see if it's captured by any of our enclosure characters
+					// if so, map what's inside the enclosure, if not try to map the original name
+					var value js.Value
+					_name, enclosure, isEnclosed := getEnclosedName(name)
+
+					if isEnclosed {
+						value = nameMap.Get(_name)
+						if value.IsUndefined() {
+							return "", false
+						}
+						return enclosure.open + value.String() + enclosure.close, true
+					}
+
+					value = nameMap.Get(name)
 					if value.IsUndefined() {
 						return "", false
 					}
@@ -168,7 +201,8 @@ func normalize(this js.Value, args []js.Value) interface{} {
 			tableReferences := sqlparser.GetUniqueTableReferences(ast)
 			tables := make([]interface{}, len(tableReferences))
 			for i := range tableReferences {
-				tables[i] = tableReferences[i]
+				_name, _, _ := getEnclosedName(tableReferences[i])
+				tables[i] = _name
 			}
 			response := map[string]interface{}{
 				"type":       string(statementType),
@@ -180,6 +214,21 @@ func normalize(this js.Value, args []js.Value) interface{} {
 		return nil
 	})
 	return Promise.New(handler)
+}
+
+func getEnclosedName(name string) (string, EnclosingType, bool) {
+	var _name string
+	var _enclosure EnclosingType
+	for _, encloseChar := range getEnclosures() {
+		if strings.HasPrefix(name, encloseChar.open) && strings.HasSuffix(name, encloseChar.close) {
+			_, _name, _ = strings.Cut(name, encloseChar.open)
+			_name, _, _ = strings.Cut(_name, encloseChar.close)
+			_enclosure = encloseChar
+			return _name, _enclosure, true
+		}
+	}
+
+	return name, EnclosingType{open: "", close: ""}, false
 }
 
 func main() {
