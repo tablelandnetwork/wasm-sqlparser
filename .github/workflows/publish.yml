@@ -41,7 +41,7 @@ jobs:
       - name: Install 🔧
         run: npm install
 
-      - name: Build 🔧
+      - name: Build 🛠
         run: npm run build
 
       - name: Tag 🏷️
