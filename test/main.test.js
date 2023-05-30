@@ -252,9 +252,38 @@ describe("sqlparser", function () {
       );
       deepStrictEqual(tables, ["t1", "t2", "t3", "t4"]);
       deepStrictEqual(statements, [
-        'select `t1`.id,[t2].* from `t1` join [t2] join "t3" join(select * from t4)'
+        'select `t1`.id,[t2].* from `t1` join [t2] join "t3" join(select * from t4)',
       ]);
       strictEqual(type, "read");
+    });
+
+    test("when insert with flat sub-select", async function () {
+      const { type } = await globalThis.sqlparser.normalize(
+        "insert into foo_1337_1 (id) select v from blah_1337_2;"
+      );
+      strictEqual(type, "write");
+    });
+
+    test("when insert with group by and having", async function () {
+      const { type } = await globalThis.sqlparser.normalize(
+        "insert into foo_1337_1 (id) select v from blah_1337_2 group by v having count(v) > 1;"
+      );
+      strictEqual(type, "write");
+    });
+
+    test("when insert with compound select throws an error", async function () {
+      await rejects(
+        globalThis.sqlparser.normalize(
+          "insert into foo_1337_1 (id) select v from blah_1337_2 union select j from blah_1337_3;"
+        ),
+        (/** @type {any} */ err) => {
+          strictEqual(
+            err.message,
+            "error parsing statement: 1 error occurred:\n\t* compound select is not allowed\n\n"
+          );
+          return true;
+        }
+      );
     });
   });
 
@@ -352,6 +381,7 @@ describe("sqlparser", function () {
         prefix: "t",
       });
     });
+
     test("when provided with a valid table name with multiple chars in prefix", async function () {
       const validatedTable = await globalThis.sqlparser.validateTableName(
         "table_1_2"
