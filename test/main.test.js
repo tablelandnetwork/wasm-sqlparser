@@ -2,7 +2,7 @@
 import { rejects, strictEqual, deepStrictEqual, match } from "assert";
 import { test, before, describe } from "mocha";
 // eslint-disable-next-line no-unused-vars
-import _init, { initSync, __wasm, init } from "../main.js";
+import _init, { init } from "../module.js";
 
 describe("sqlparser", function () {
   before(async function () {

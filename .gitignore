@@ -1,5 +1,5 @@
 /node_modules/
-/cjs/
+out.cjs
 /coverage/
 .vscode
 .DS_Store
