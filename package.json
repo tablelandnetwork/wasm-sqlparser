@@ -2,19 +2,20 @@
   "name": "@tableland/sqlparser",
   "version": "0.0.0",
   "files": [
-    "*.cjs",
+    "cjs/*.js",
+    "cjs/package.json",
     "*.js",
     "*.d.ts",
     "*.wasm"
   ],
   "exports": {
-    "node": "./out.cjs",
+    "node": "./cjs/out.cjs",
     "import": "./module.js",
-    "require": "./out.cjs",
+    "require": "./cjs/out.cjs",
     "default": "./module.js"
   },
   "type": "module",
-  "main": "./out.cjs",
+  "main": "./cjs/out.cjs",
   "module": "./module.js",
   "types": "types.d.ts",
   "devDependencies": {
@@ -50,7 +51,7 @@
     "wasm:go": "tinygo build -gc=leaking -no-debug -o main.wasm -target wasm ./main.go",
     "wasm:opt": "npx wasm-opt -O main.wasm -o main.wasm",
     "esbuild": "./build.mjs",
-    "fixup": "echo '{\n  \"type\": \"commonjs\"\n}' > package.json",
+    "fixup": "echo '{\n  \"type\": \"commonjs\"\n}' > cjs/package.json",
     "build:cjs": "npm run esbuild && npm run fixup",
     "build:wasm": "npm run wasm:go && npm run wasm:opt",
     "build": "npm run build:wasm && npm run build:cjs",
