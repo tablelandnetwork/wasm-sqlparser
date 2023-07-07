@@ -7,6 +7,6 @@ await esbuild.build({
   platform: 'node',
   entryPoints: ['main.js'],
   bundle: true,
-  outfile: 'cjs/out.cjs',
+  outfile: 'cjs/out.js',
   plugins: [watPlugin()],
 })

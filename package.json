@@ -9,9 +9,9 @@
     "*.wasm"
   ],
   "exports": {
-    "node": "./cjs/out.cjs",
+    "node": "./cjs/out.js",
     "import": "./module.js",
-    "require": "./cjs/out.cjs",
+    "require": "./cjs/out.js",
     "default": "./module.js"
   },
   "type": "module",
