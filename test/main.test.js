@@ -5,14 +5,11 @@ import { fileURLToPath } from "node:url";
 import { rejects, strictEqual, deepStrictEqual, match } from "assert";
 import { test, before, describe } from "mocha";
 // eslint-disable-next-line no-unused-vars
-import _init, { init } from "../module.js";
+import _init, { init } from "../esm/out.js";
 
 describe("sqlparser", function () {
   before(async function () {
-    const _dirname = dirname(fileURLToPath(import.meta.url))
-    const file = fs.readFileSync(resolve(_dirname, "..", "main.wasm"));
-    const buffer = new Uint8Array(file).buffer;
-    await init(buffer);
+    await init();
   });
 
   describe("normalize", function () {

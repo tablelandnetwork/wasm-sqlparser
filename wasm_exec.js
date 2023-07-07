@@ -31,6 +31,7 @@
   }
 
   if (!global.fs && global.require) {
+console.log("trying to require('fs');", global);
     global.fs = require("fs");
   }
 
