@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 // @ts-check
 import { rejects, strictEqual, deepStrictEqual, match } from "assert";
 import { test, before, describe } from "mocha";
@@ -6,7 +9,10 @@ import _init, { init } from "../module.js";
 
 describe("sqlparser", function () {
   before(async function () {
-    await init();
+    const _dirname = dirname(fileURLToPath(import.meta.url))
+    const file = fs.readFileSync(resolve(_dirname, "..", "main.wasm"));
+    const buffer = new Uint8Array(file).buffer;
+    await init(buffer);
   });
 
   describe("normalize", function () {

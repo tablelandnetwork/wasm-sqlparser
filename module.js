@@ -118,9 +118,10 @@ const init = async (input) => {
   const imports = getImports();
 
   if (
-    typeof input === "string" ||
+    // cannot fetch from file system
+    (typeof input === "string" && input.indexOf("file:") !== 0) ||
     (typeof Request === "function" && input instanceof Request) ||
-    (typeof URL === "function" && input instanceof URL)
+    (typeof URL === "function" && input instanceof URL && input.href.indexOf("file:") !== 0)
   ) {
     input = fetch(input);
   }
