@@ -2,3 +2,5 @@ node_modules
 wasm_exec.js
 types.d.ts
 cjs
+esm
+polyfills/crypto.js

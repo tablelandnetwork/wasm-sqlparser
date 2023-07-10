@@ -1,5 +1,6 @@
 /node_modules/
-/cjs/
+/cjs/*
+/esm/*
 /coverage/
 .vscode
 .DS_Store

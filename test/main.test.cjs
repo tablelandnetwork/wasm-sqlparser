@@ -2,7 +2,7 @@
 const { rejects, strictEqual, deepStrictEqual, match } = require("assert");
 const { test, before, describe } = require("mocha");
 // eslint-disable-next-line no-unused-vars
-const { initSync, __wasm, init } = require("../cjs/main.js");
+const { __wasm, init } = require("../cjs/out.js");
 
 describe("sqlparser", function () {
   before(async function () {
