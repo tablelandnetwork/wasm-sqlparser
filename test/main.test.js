@@ -1,11 +1,8 @@
-import fs from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 // @ts-check
 import { rejects, strictEqual, deepStrictEqual, match } from "assert";
 import { test, before, describe } from "mocha";
 // eslint-disable-next-line no-unused-vars
-import _init, { init } from "../esm/out.js";
+import _init, { __wasm, init } from "../esm/out.js";
 
 describe("sqlparser", function () {
   before(async function () {

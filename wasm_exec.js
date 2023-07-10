@@ -1,8 +1,15 @@
+// NOTE: This package is using esbuild with a plugin that inlines WASM.
+//    Because of this the "fs" module is no longer needed, and the polyfill
+//    for that has been removed, along with any need to detect the existence
+//    of a global `require`.
+
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 //
 // This file has been modified for use by the TinyGo compiler.
+//
+// This file has been modified for use by Tableland.
 
 (() => {
   // Map multiple JavaScript environments to a single common API,
@@ -21,18 +28,7 @@
   } else if (typeof self !== "undefined") {
     self.global = self;
   } else {
-    throw new Error(
-      "cannot export Go (neither global, window nor self is defined)"
-    );
-  }
-
-  if (!global.require && typeof require !== "undefined") {
-    global.require = require;
-  }
-
-  if (!global.fs && global.require) {
-console.log("trying to require('fs');", global);
-    global.fs = require("fs");
+    throw new Error("cannot export Go (neither global, window nor self is defined)");
   }
 
   const enosys = () => {
@@ -41,144 +37,19 @@ console.log("trying to require('fs');", global);
     return err;
   };
 
-  if (!global.fs) {
-    let outputBuf = "";
-    global.fs = {
-      constants: {
-        O_WRONLY: -1,
-        O_RDWR: -1,
-        O_CREAT: -1,
-        O_TRUNC: -1,
-        O_APPEND: -1,
-        O_EXCL: -1,
-      }, // unused
-      writeSync(fd, buf) {
-        outputBuf += decoder.decode(buf);
-        const nl = outputBuf.lastIndexOf("\n");
-        if (nl != -1) {
-          console.log(outputBuf.substr(0, nl));
-          outputBuf = outputBuf.substr(nl + 1);
-        }
-        return buf.length;
-      },
-      write(fd, buf, offset, length, position, callback) {
-        if (offset !== 0 || length !== buf.length || position !== null) {
-          callback(enosys());
-          return;
-        }
-        const n = this.writeSync(fd, buf);
-        callback(null, n);
-      },
-      chmod(path, mode, callback) {
-        callback(enosys());
-      },
-      chown(path, uid, gid, callback) {
-        callback(enosys());
-      },
-      close(fd, callback) {
-        callback(enosys());
-      },
-      fchmod(fd, mode, callback) {
-        callback(enosys());
-      },
-      fchown(fd, uid, gid, callback) {
-        callback(enosys());
-      },
-      fstat(fd, callback) {
-        callback(enosys());
-      },
-      fsync(fd, callback) {
-        callback(null);
-      },
-      ftruncate(fd, length, callback) {
-        callback(enosys());
-      },
-      lchown(path, uid, gid, callback) {
-        callback(enosys());
-      },
-      link(path, link, callback) {
-        callback(enosys());
-      },
-      lstat(path, callback) {
-        callback(enosys());
-      },
-      mkdir(path, perm, callback) {
-        callback(enosys());
-      },
-      open(path, flags, mode, callback) {
-        callback(enosys());
-      },
-      read(fd, buffer, offset, length, position, callback) {
-        callback(enosys());
-      },
-      readdir(path, callback) {
-        callback(enosys());
-      },
-      readlink(path, callback) {
-        callback(enosys());
-      },
-      rename(from, to, callback) {
-        callback(enosys());
-      },
-      rmdir(path, callback) {
-        callback(enosys());
-      },
-      stat(path, callback) {
-        callback(enosys());
-      },
-      symlink(path, link, callback) {
-        callback(enosys());
-      },
-      truncate(path, length, callback) {
-        callback(enosys());
-      },
-      unlink(path, callback) {
-        callback(enosys());
-      },
-      utimes(path, atime, mtime, callback) {
-        callback(enosys());
-      },
-    };
-  }
-
   if (!global.process) {
     global.process = {
-      getuid() {
-        return -1;
-      },
-      getgid() {
-        return -1;
-      },
-      geteuid() {
-        return -1;
-      },
-      getegid() {
-        return -1;
-      },
-      getgroups() {
-        throw enosys();
-      },
+      getuid() { return -1; },
+      getgid() { return -1; },
+      geteuid() { return -1; },
+      getegid() { return -1; },
+      getgroups() { throw enosys(); },
       pid: -1,
       ppid: -1,
-      umask() {
-        throw enosys();
-      },
-      cwd() {
-        throw enosys();
-      },
-      chdir() {
-        throw enosys();
-      },
-    };
-  }
-
-  if (!global.crypto && global.require) {
-    const nodeCrypto = require("crypto");
-    global.crypto = {
-      getRandomValues(b) {
-        nodeCrypto.randomFillSync(b);
-      },
-    };
+      umask() { throw enosys(); },
+      cwd() { throw enosys(); },
+      chdir() { throw enosys(); },
+    }
   }
 
   if (!global.performance) {
@@ -190,12 +61,18 @@ console.log("trying to require('fs');", global);
     };
   }
 
+  // By removing the polyfills from this file we are more flexible in how we can use esbuild.
+  // These three globals are expected to be polyfilled elsewhere, for the specific build.
+  if (!global.crypto) {
+    throw new Error("must polyfill crypto.getRandomValues for tinygo wasm");
+  }
+
   if (!global.TextEncoder) {
-    global.TextEncoder = require("util").TextEncoder;
+    throw new Error("must polyfill util.TextEncoder for tinygo wasm");
   }
 
   if (!global.TextDecoder) {
-    global.TextDecoder = require("util").TextDecoder;
+    throw new Error("must polyfill util.TextDecoder for tinygo wasm");
   }
 
   // End of polyfills for common API.
@@ -239,7 +116,7 @@ console.log("trying to require('fs');", global);
       };
 
       const storeValue = (addr, v) => {
-        const nanHead = 0x7ff80000;
+        const nanHead = 0x7FF80000;
 
         if (typeof v === "number") {
           if (isNaN(v)) {
@@ -314,9 +191,7 @@ console.log("trying to require('fs');", global);
       };
 
       const loadString = (ptr, len) => {
-        return decoder.decode(
-          new DataView(this._inst.exports.memory.buffer, ptr, len)
-        );
+        return decoder.decode(new DataView(this._inst.exports.memory.buffer, ptr, len));
       };
 
       const timeOrigin = Date.now() - performance.now();
@@ -333,11 +208,9 @@ console.log("trying to require('fs');", global);
                 nwritten += len;
                 for (let i = 0; i < len; i++) {
                   let c = mem().getUint8(ptr + i);
-                  if (c == 13) {
-                    // CR
+                  if (c == 13) { // CR
                     // ignore
-                  } else if (c == 10) {
-                    // LF
+                  } else if (c == 10) { // LF
                     // write line
                     let line = decoder.decode(new Uint8Array(logLine));
                     logLine = [];
@@ -348,21 +221,21 @@ console.log("trying to require('fs');", global);
                 }
               }
             } else {
-              console.error("invalid file descriptor:", fd);
+              console.error('invalid file descriptor:', fd);
             }
             mem().setUint32(nwritten_ptr, nwritten, true);
             return 0;
           },
-          fd_close: () => 0, // dummy
+          fd_close: () => 0,      // dummy
           fd_fdstat_get: () => 0, // dummy
-          fd_seek: () => 0, // dummy
-          proc_exit: (code) => {
+          fd_seek: () => 0,       // dummy
+          "proc_exit": (code) => {
             if (global.process) {
               // Node.js
               process.exit(code);
             } else {
               // Can't exit in a browser.
-              throw "trying to exit with code " + code;
+              throw 'trying to exit with code ' + code;
             }
           },
           random_get: (bufPtr, bufLen) => {
@@ -386,7 +259,7 @@ console.log("trying to require('fs');", global);
           "syscall/js.finalizeRef": (sp) => {
             // Note: TinyGo does not support finalizers so this should never be
             // called.
-            console.error("syscall/js.finalizeRef not implemented");
+            console.error('syscall/js.finalizeRef not implemented');
           },
 
           // func stringVal(value string) ref
@@ -429,15 +302,7 @@ console.log("trying to require('fs');", global);
           },
 
           // func valueCall(v ref, m string, args []ref) (ref, bool)
-          "syscall/js.valueCall": (
-            ret_addr,
-            v_addr,
-            m_ptr,
-            m_len,
-            args_ptr,
-            args_len,
-            args_cap
-          ) => {
+          "syscall/js.valueCall": (ret_addr, v_addr, m_ptr, m_len, args_ptr, args_len, args_cap) => {
             const v = loadValue(v_addr);
             const name = loadString(m_ptr, m_len);
             const args = loadSliceOfValues(args_ptr, args_len, args_cap);
@@ -452,13 +317,7 @@ console.log("trying to require('fs');", global);
           },
 
           // func valueInvoke(v ref, args []ref) (ref, bool)
-          "syscall/js.valueInvoke": (
-            ret_addr,
-            v_addr,
-            args_ptr,
-            args_len,
-            args_cap
-          ) => {
+          "syscall/js.valueInvoke": (ret_addr, v_addr, args_ptr, args_len, args_cap) => {
             try {
               const v = loadValue(v_addr);
               const args = loadSliceOfValues(args_ptr, args_len, args_cap);
@@ -471,13 +330,7 @@ console.log("trying to require('fs');", global);
           },
 
           // func valueNew(v ref, args []ref) (ref, bool)
-          "syscall/js.valueNew": (
-            ret_addr,
-            v_addr,
-            args_ptr,
-            args_len,
-            args_cap
-          ) => {
+          "syscall/js.valueNew": (ret_addr, v_addr, args_ptr, args_len, args_cap) => {
             const v = loadValue(v_addr);
             const args = loadSliceOfValues(args_ptr, args_len, args_cap);
             try {
@@ -503,12 +356,7 @@ console.log("trying to require('fs');", global);
           },
 
           // valueLoadString(v ref, b []byte)
-          "syscall/js.valueLoadString": (
-            v_addr,
-            slice_ptr,
-            slice_len,
-            slice_cap
-          ) => {
+          "syscall/js.valueLoadString": (v_addr, slice_ptr, slice_len, slice_cap) => {
             const str = loadValue(v_addr);
             loadSlice(slice_ptr, slice_len, slice_cap).set(str);
           },
@@ -519,21 +367,13 @@ console.log("trying to require('fs');", global);
           },
 
           // func copyBytesToGo(dst []byte, src ref) (int, bool)
-          "syscall/js.copyBytesToGo": (
-            ret_addr,
-            dest_addr,
-            dest_len,
-            dest_cap,
-            source_addr
-          ) => {
+          "syscall/js.copyBytesToGo": (ret_addr, dest_addr, dest_len, dest_cap, source_addr) => {
             let num_bytes_copied_addr = ret_addr;
             let returned_status_addr = ret_addr + 4; // Address of returned boolean status variable
 
             const dst = loadSlice(dest_addr, dest_len);
             const src = loadValue(source_addr);
-            if (
-              !(src instanceof Uint8Array || src instanceof Uint8ClampedArray)
-            ) {
+            if (!(src instanceof Uint8Array || src instanceof Uint8ClampedArray)) {
               mem().setUint8(returned_status_addr, 0); // Return "not ok" status
               return;
             }
@@ -546,21 +386,13 @@ console.log("trying to require('fs');", global);
           // copyBytesToJS(dst ref, src []byte) (int, bool)
           // Originally copied from upstream Go project, then modified:
           //   https://github.com/golang/go/blob/3f995c3f3b43033013013e6c7ccc93a9b1411ca9/misc/wasm/wasm_exec.js#L404-L416
-          "syscall/js.copyBytesToJS": (
-            ret_addr,
-            dest_addr,
-            source_addr,
-            source_len,
-            source_cap
-          ) => {
+          "syscall/js.copyBytesToJS": (ret_addr, dest_addr, source_addr, source_len, source_cap) => {
             let num_bytes_copied_addr = ret_addr;
             let returned_status_addr = ret_addr + 4; // Address of returned boolean status variable
 
             const dst = loadValue(dest_addr);
             const src = loadSlice(source_addr, source_len);
-            if (
-              !(dst instanceof Uint8Array || dst instanceof Uint8ClampedArray)
-            ) {
+            if (!(dst instanceof Uint8Array || dst instanceof Uint8ClampedArray)) {
               mem().setUint8(returned_status_addr, 0); // Return "not ok" status
               return;
             }
@@ -569,14 +401,13 @@ console.log("trying to require('fs');", global);
             setInt64(num_bytes_copied_addr, toCopy.length);
             mem().setUint8(returned_status_addr, 1); // Return "ok" status
           },
-        },
+        }
       };
     }
 
     async run(instance) {
       this._inst = instance;
-      this._values = [
-        // JS values that Go currently has references to, indexed by reference id
+      this._values = [ // JS values that Go currently has references to, indexed by reference id
         NaN,
         0,
         null,
@@ -586,11 +417,11 @@ console.log("trying to require('fs');", global);
         this,
       ];
       this._goRefCounts = []; // number of references that Go has to a JS value, indexed by reference id
-      this._ids = new Map(); // mapping from JS values to reference ids
-      this._idPool = []; // unused ids that have been garbage collected
-      this.exited = false; // whether the Go program has exited
+      this._ids = new Map();  // mapping from JS values to reference ids
+      this._idPool = [];      // unused ids that have been garbage collected
+      this.exited = false;    // whether the Go program has exited
 
-      const mem = new DataView(this._inst.exports.memory.buffer);
+      const mem = new DataView(this._inst.exports.memory.buffer)
 
       while (true) {
         const callbackPromise = new Promise((resolve) => {
@@ -628,5 +459,5 @@ console.log("trying to require('fs');", global);
         return event.result;
       };
     }
-  };
+  }
 })();

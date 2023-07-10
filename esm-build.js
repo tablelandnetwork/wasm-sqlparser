@@ -3,9 +3,8 @@ import watPlugin from "esbuild-plugin-wat";
 
 // esm
 await esbuild.build({
-  // default platform is browser
+  platform: "neutral",
   entryPoints: ["main.js"],
-  external: ["fs", "crypto"],
   bundle: true,
   outfile: "esm/out.js",
   plugins: [watPlugin()],
